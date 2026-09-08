@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:1198
+
+### Home
+GET {{baseUrl}}/
+
+### Health
+GET {{baseUrl}}/health
+
+### a2rp API
+GET {{baseUrl}}/api/v1/a2rp
+
+### Route not found example
+GET {{baseUrl}}/api/v1/not-found

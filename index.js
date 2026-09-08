@@ -1,14 +1,96 @@
+// Load Express to create the HTTP API server.
 const express = require("express");
-const app = express();
+// Load values from a local .env file when it is available.
+const dotenv = require("dotenv");
 
-app.get("/api/v1/a2rp", (req, res) => {
-    res.json({
-        success: true,
-        message: "a2rp: an Ashish Ranjan presentation"
+dotenv.config();
+
+// Create the Express application instance.
+const app = express();
+// Use PORT from .env or the system environment. Fall back to the project standard port.
+const PORT = Number(process.env.PORT) || 1198;
+
+// Do not reveal the Express framework through the X-Powered-By response header.
+app.disable("x-powered-by");
+// Parse JSON request bodies and reject unusually large payloads.
+app.use(express.json({ limit: "50kb" }));
+
+// Add the requested API path as the first field in every JSON response.
+app.use((req, res, next) => {
+    // Keep Express's original JSON response method so it can be called after adding apiUrl.
+    const originalJson = res.json.bind(res);
+
+    res.json = (payload) => {
+        const apiUrl = req.originalUrl;
+
+        if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+            // Ignore any apiUrl supplied by a handler and always use the actual request path.
+            const { apiUrl: ignoredApiUrl, ...body } = payload;
+            return originalJson({ apiUrl, ...body });
+        }
+
+        // Keep the response format predictable even if a route sends a primitive value.
+        return originalJson({ apiUrl, data: payload });
+    };
+
+    next();
+});
+
+// Log the HTTP method, requested path, and final status after each response finishes.
+app.use((req, res, next) => {
+    res.on("finish", () => {
+        console.log(`[API] ${req.method} ${req.originalUrl} -> ${res.statusCode}`);
+    });
+
+    next();
+});
+
+// Home route: confirms that the API service is available.
+app.get("/", (req, res) => {
+    return res.status(200).json({
+        message: "Basic Node.js Express API is running",
     });
 });
 
-const PORT = process.env.port || 1198;
+// Health route: useful for checking whether the server can receive requests.
+app.get("/health", (req, res) => {
+    return res.status(200).json({
+        status: "ok",
+        service: "basic-nodejs-expressjs-hello-app",
+    });
+});
+
+// Existing public API route for the a2rp response.
+app.get("/api/v1/a2rp", (req, res) => {
+    return res.status(200).json({
+        success: true,
+        message: "a2rp: an Ashish Ranjan presentation",
+    });
+});
+
+// Fallback route: runs only when no route above matches the requested path.
+app.use((req, res) => {
+    return res.status(404).json({ message: "Route not found" });
+});
+
+// Error handler: receives errors from earlier middleware, including malformed JSON bodies.
+app.use((error, req, res, next) => {
+    // Do not try to send a second response after a route has already sent one.
+    if (res.headersSent) {
+        return next(error);
+    }
+
+    console.error(`[API] ${req.method} ${req.originalUrl} error:`, error.message);
+
+    // Express uses this error type when a request body contains invalid JSON.
+    if (error.type === "entity.parse.failed") {
+        return res.status(400).json({ message: "Malformed JSON request body" });
+    }
+
+    return res.status(500).json({ message: "Internal server error" });
+});
+
+// Start listening only after all middleware and routes have been registered.
 app.listen(PORT, () => {
-    console.log(`server running on port ${PORT}: http://localhost:${PORT}`);
+    console.log(`[API] Server running on port ${PORT}`);
 });
