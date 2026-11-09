@@ -11,7 +11,8 @@ A small Express API that demonstrates a clean server setup with a service route,
 - Consistent `apiUrl` field in JSON responses
 - `[API]` request and status logs
 - JSON body parsing with a small request-size limit
-- JSON 404 and malformed JSON error responses
+- JSON 404, malformed JSON, and oversized-body error responses
+- Port validation and query-free request logs
 
 ## Requirements
 
@@ -79,19 +80,3 @@ Full-Stack Web Developer
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](./LICENSE).
-
-## Links
-
-- Portfolio: [https://www.ashishranjan.net](https://www.ashishranjan.net)
-- GitHub: [https://github.com/a2rp](https://github.com/a2rp)
-- CodePen: [https://codepen.io/ash1198](https://codepen.io/ash1198)
-- LinkedIn: [https://www.linkedin.com/in/aashishranjan](https://www.linkedin.com/in/aashishranjan)
-- Facebook: [https://www.facebook.com/theash.ashish/](https://www.facebook.com/theash.ashish/)
-- YouTube: [https://www.youtube.com/@ashishranjan-ashz?sub_confirmation=1](https://www.youtube.com/@ashishranjan-ashz?sub_confirmation=1)
-- Email: [ash.ranjan09@gmail.com](mailto:ash.ranjan09@gmail.com)
-
-## Support
-
-- Support: [https://a2rp-donation-page.netlify.app/](https://a2rp-donation-page.netlify.app/)
-- Buy Me A Coffee: [https://buymeacoffee.com/a2rp](https://buymeacoffee.com/a2rp)
-- Patreon: [https://patreon.com/a2rp](https://patreon.com/a2rp)
